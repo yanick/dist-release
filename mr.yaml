@@ -1,0 +1,2 @@
+checks:
+    - M::R::Action::DoSomething
