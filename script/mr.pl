@@ -8,8 +8,3 @@ use M::R;
 my $mr = M::R->new();
 
 $mr->check;
-
-
-
-
-
