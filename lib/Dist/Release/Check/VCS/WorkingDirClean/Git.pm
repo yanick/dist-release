@@ -17,7 +17,7 @@ sub check {
     my $result = `git status`;
 
     $self->error( 'working directory is not clean' ) 
-        unless $result =~ /working dir is clean/;
+        unless $result =~ /working directory clean/;
 }
 
 
