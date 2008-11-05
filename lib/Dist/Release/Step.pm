@@ -1,4 +1,4 @@
-package Dist::Release::Action;
+package Dist::Release::Step;
 
 use Moose::Role;
 
@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 has 'fails' => ( default => 0, is => 'rw' );
+has '_error' => ( is => 'rw' );
 
 requires 'check';
 
@@ -17,9 +18,8 @@ before check => sub {
 sub error {
     my( $self, @msg ) = @_;
 
-    if ( @msg ) {
-        print map "$_\n" => @msg;
-    }
+    no warnings qw/ uninitialized /;
+    $self->_error( join "\n", $self->_error, @msg  );
 
     $self->fails(1);
 }

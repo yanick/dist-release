@@ -6,6 +6,7 @@ use warnings;
 use Moose;
 
 use YAML;
+use Term::ANSIColor;
 
 has 'config', 
     is => 'ro',
@@ -16,12 +17,16 @@ has 'actions',
     ;
 
 has 'checks',
-    isa => 'ArrayRef[Str]'
-    ;
+    isa => 'ArrayRef[Str]';
+
+has 'vcs',
+    builder => 'detect_vcs',
+    is => 'rw';
 
 sub actions {
     return @{ $_[0]->{actions}||=[] };
 }
+
 sub checks {
     return @{ $_[0]->{checks}||=[] };
 }
@@ -61,50 +66,69 @@ sub load_config {
     }
 
     for my $step ( $self->actions, $self->checks ) {
-        eval "require $step; 1;" 
-            or die "couldn't load release step '$step': $@";
+        eval "require Dist::Release::Check::$step; 1;" 
+            or die "couldn't load release step '$step'\n$@";
     }
 
     return $config;
 }
 
+sub detect_vcs {
+    my $self = shift;
+
+    if ( -d '.git' ) {
+        require Git;
+        my $repo = Git->repository;
+        $self->vcs( $repo );
+    }
+
+}
 
 sub check {
     my $self = shift;
 
+    my $failed_checks;
+
     print "running check cycle...\n";
 
-    print "pure checks\n";
+    print "regular checks\n";
 
         for ( $self->checks ) {
-            print $_, "\n";
-            my $s = $_->new;
-            $s->check();
+            printf "%30s    ", $_;
+            my $s = "Dist::Release::Check::$_"->new;
+            $s->check( $self );
 
             if( $s->fails ) {
-                die "check failed: $@";
+                print '['. colored(  'failed', 'red' ) . "]\n";
+                print $s->_error;
+                $failed_checks++;
             }
             else {
-                print "check passed\n";
+                print '['. colored(  'passed', 'green' ) . "]\n";
             }
         }
 
-    print "pre-action checks\n";
+    print "pre-action checks\n" if $self->actions;
 
     for ( $self->actions ) {
-        print "$_\n";
+        printf "%30s    ", $_;
         my $c = $_->new;
         $c->check;
 
             if( $c->fails ) {
-                die "check failed: $@";
+                print '['. colored(  'failed', 'red' ) . "]\n";
+                $failed_checks++;
             }
             else {
-                print "check passed\n";
+                print '['. colored(  'passed', 'green' ) . "]\n";
             }
 
     }
 
+    if ( $failed_checks ) {
+        print $failed_checks . ' checks failed'."\n";
+        exit 1;
+    }
 }
 
 sub release {
