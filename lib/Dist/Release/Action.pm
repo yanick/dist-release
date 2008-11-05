@@ -1,4 +1,4 @@
-package M::R::Action;
+package Dist::Release::Action;
 
 use Moose::Role;
 

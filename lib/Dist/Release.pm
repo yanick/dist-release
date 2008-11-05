@@ -1,4 +1,4 @@
-package M::R;
+package Dist::Release;
 
 use strict;
 use warnings;
@@ -48,9 +48,9 @@ sub clear_checks {
 sub load_config {
     my $self = shift;
 
-    die "no 'mr.yaml' present" unless -f 'mr.yaml';
+    die "no 'release.yaml' present" unless -f 'release.yaml';
 
-    my $config = YAML::LoadFile( 'mr.yaml' );
+    my $config = YAML::LoadFile( 'release.yaml' );
 
     if ( $config->{actions} ) {
         $self->add_actions( @{$config->{actions} } );    
@@ -124,6 +124,7 @@ sub release {
             print "release failed!\n";
             print "release actions not run: ", join( ', ', @actions ), "\n"
                 if @actions;
+            exit;
         }
     }
 
