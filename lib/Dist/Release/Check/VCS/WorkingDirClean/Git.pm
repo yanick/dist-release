@@ -14,7 +14,10 @@ sub check {
     my $git = $drel->vcs;
 
     $DB::single = 1;
-    my $result = $git->command( 'status' );
+    my $result = eval { $git->command( 'status' ) };
+    if ( $@ ) {
+        die $@;
+    }
 
     $self->error( 'working directory is not clean' ) 
         unless $result =~ /working dir is clean/;

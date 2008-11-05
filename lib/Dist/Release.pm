@@ -8,6 +8,10 @@ use Moose;
 use YAML;
 use Term::ANSIColor;
 
+use Readonly;
+
+Readonly my $rc_filename => 'distrelease.yml';
+
 has 'config', 
     is => 'ro',
     builder => 'load_config';
@@ -53,9 +57,9 @@ sub clear_checks {
 sub load_config {
     my $self = shift;
 
-    die "no 'release.yaml' present" unless -f 'release.yaml';
+    die "no file '$rc_filename' found\n" unless -f $rc_filename;
 
-    my $config = YAML::LoadFile( 'release.yaml' );
+    my $config = YAML::LoadFile( $rc_filename );
 
     if ( $config->{actions} ) {
         $self->add_actions( @{$config->{actions} } );    
