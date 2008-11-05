@@ -13,6 +13,7 @@ sub check {
 
     my $git = $drel->vcs;
 
+    $DB::single = 1;
     my $result = $git->command( 'status' );
 
     $self->error( 'working directory is not clean' ) 
