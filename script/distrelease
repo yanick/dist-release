@@ -7,4 +7,4 @@ use Dist::Release;
 
 my $rel = Dist::Release->new();
 
-$rel->check;
+$rel->release;

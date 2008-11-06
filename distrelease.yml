@@ -1,2 +1,4 @@
 checks:
-    - VCS::WorkingDirClean::Git
+    - VCS::WorkingDirClean
+actions:
+    - CPANUpload

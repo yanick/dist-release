@@ -3,7 +3,9 @@ package Dist::Release;
 use strict;
 use warnings;
 
+use Moose::Policy 'MooseX::Policy::SemiAffordanceAccessor';
 use Moose;
+
 
 use YAML;
 use Term::ANSIColor;
@@ -69,8 +71,13 @@ sub load_config {
         $self->add_checks( @{$config->{checks} } );    
     }
 
-    for my $step ( $self->actions, $self->checks ) {
+    for my $step ( $self->checks ) {
         eval "require Dist::Release::Check::$step; 1;" 
+            or die "couldn't load release step '$step'\n$@";
+    }
+
+    for my $step ( $self->actions ) {
+        eval "require Dist::Release::Action::$step; 1;" 
             or die "couldn't load release step '$step'\n$@";
     }
 
@@ -83,9 +90,19 @@ sub detect_vcs {
     if ( -d '.git' ) {
         require Git;
         my $repo = Git->repository;
-        $self->vcs( $repo );
+        $self->set_vcs( $repo );
     }
 
+}
+
+sub vcs_name {
+    my $self = shift;
+
+    my %mod2name = (
+        Git => 'Git',
+    );
+
+    return $mod2name{ ref $self->vcs };
 }
 
 sub check {
@@ -97,42 +114,41 @@ sub check {
 
     print "regular checks\n";
 
-        for ( $self->checks ) {
-            printf "%30s    ", $_;
-            my $s = "Dist::Release::Check::$_"->new;
-            $s->check( $self );
-
-            if( $s->fails ) {
-                print '['. colored(  'failed', 'red' ) . "]\n";
-                print $s->_error;
-                $failed_checks++;
-            }
-            else {
-                print '['. colored(  'passed', 'green' ) . "]\n";
-            }
-        }
+    $failed_checks += ! $self->check_single( $_ ) for $self->checks;
 
     print "pre-action checks\n" if $self->actions;
 
-    for ( $self->actions ) {
-        printf "%30s    ", $_;
-        my $c = $_->new;
-        $c->check;
-
-            if( $c->fails ) {
-                print '['. colored(  'failed', 'red' ) . "]\n";
-                $failed_checks++;
-            }
-            else {
-                print '['. colored(  'passed', 'green' ) . "]\n";
-            }
-
-    }
+    $failed_checks += ! $self->check_single( $_, 'Action' ) for $self->actions;
 
     if ( $failed_checks ) {
         print $failed_checks . ' checks failed'."\n";
-        exit 1;
+        # exit 1;
     }
+}
+
+# return true on success, false on failure
+sub check_single {
+    my $self = shift;
+    my $checkname = shift;
+    my $type = shift || 'Check';
+
+            my $pass = 1;
+            printf "%-30s    ", $_;
+            my $s = "Dist::Release::${type}::$checkname"->new( distrel => $self );
+            $s->check;
+
+            if( $s->failed ) {
+                print '['. colored(  'failed', 'red' ) . "]\n";
+                $pass = 0;
+            }
+            else {
+                print '['. colored(  'passed', 'green' ) . "]\n";
+
+            }
+
+            print $s->log;
+
+            return $pass;
 }
 
 sub release {
@@ -144,16 +160,23 @@ sub release {
 
     my @actions = $self->actions;
     while ( my $a = shift @actions ) {
-        print "$a\n";
-        $a = $_->new;    
+            printf "%-30s    ", $a;
+        $a = "Dist::Release::Action::$a"->new( distrel => $self );    
         $a->release;
 
-        if ( $a->fails ) {
-            print "release failed!\n";
-            print "release actions not run: ", join( ', ', @actions ), "\n"
-                if @actions;
+
+            if( $a->failed ) {
+                print '['. colored(  'failed', 'red' ) . "]\n";
+                print "release actions not run: ", join( ', ', @actions ), "\n" if @actions;
+                print $a->log;
             exit;
-        }
+            }
+            else {
+                print '['. colored(  'passed', 'green' ) . "]\n";
+
+            }
+
+            print $a->log;
     }
 
 }

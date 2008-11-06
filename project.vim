@@ -1,0 +1,18 @@
+
+Dist-Release=/home/yanick/work/perl-modules/Dist-Release CD=. {
+ distrelease.yml
+ project.vim
+ tags
+ issues=issues {
+  README.txt
+ }
+ pms=lib {
+   Dist/Release.pm
+   Dist/Release/Step.pm
+   Dist/Release/Action/CPANUpload.pm
+   Dist/Release/Action/DoSomething.pm
+ }
+ script=script {
+  distrelease
+ }
+}

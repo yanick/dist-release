@@ -2,23 +2,19 @@ package Dist::Release::Check::VCS::WorkingDirClean::Git;
 
 use Moose;
 
-with 'Dist::Release::Step';
+extends 'Dist::Release::Step';
 
 sub check {
     my $self = shift;
-    my $drel  = shift;
 
     return $self->error( 'no Git repository detected' ) 
-        unless 'Git' eq ref $drel->vcs; 
+        unless 'Git' eq ref $self->distrel->vcs; 
 
-    my $git = $drel->vcs;
-
-    $DB::single = 1;
     my $result = `git status`;
 
-    $self->error( 'working directory is not clean' ) 
+    $self->error( 'working directory is not clean' . "\n" . $result ) 
         unless $result =~ /working directory clean/;
 }
 
 
-
+1;

@@ -1,35 +1,43 @@
 package Dist::Release::Step;
 
-use Moose::Role;
+use Moose::Policy 'MooseX::Policy::SemiAffordanceAccessor';
+use Moose;
 
-use strict;
-use warnings;
+has 'failed' => ( default => 0, is => 'rw' );
+has 'log' => ( is => 'rw' );
 
-has 'fails' => ( default => 0, is => 'rw' );
-has '_error' => ( is => 'rw' );
+has distrel => ( is => 'ro', required => 1 );
 
-requires 'check';
+sub check {
+    $_[0]->error('check not implemented!');
+}
 
 before check => sub {
     my $self = shift;
-    $self->fails(0);
+    $self->set_failed(0);
 };
 
 sub error {
-    my( $self, @msg ) = @_;
+    my ( $self, @msg ) = @_;
+
+    s/\s*$/\n/ for @msg;
 
     no warnings qw/ uninitialized /;
-    $self->_error( join "\n", $self->_error, @msg  );
+    $self->set_log( $self->log . join '', @msg );
 
-    $self->fails(1);
+    $self->set_failed(1);
 }
 
 sub diag {
     my $self = shift;
 
-    print map "$_\n" => @_;
+    my @msg = @_;
+
+    s/\s*$/\n/ for @msg;
+
+    no warnings qw/ uninitialized /;
+    $self->set_log( $self->log . join '', @msg );
 }
 
 1;
-
 
