@@ -1,0 +1,8 @@
+Summary: distrelease should have actions and check
+Status: New
+CreatedBy: Yanick Champoux <yanick@babyl.dyndns.org>
+AssignedTo: 
+Inserted: 2008-11-06T15:50:07
+Updated: 2008-11-06T15:50:49
+
+distrelease --check=SomeCheck  --action=SomeAction
