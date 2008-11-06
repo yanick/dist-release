@@ -9,6 +9,7 @@ use Moose;
 
 use YAML;
 use Term::ANSIColor;
+use Hash::Merge 'merge';
 
 use Readonly;
 
@@ -59,9 +60,12 @@ sub clear_checks {
 sub load_config {
     my $self = shift;
 
-    die "no file '$rc_filename' found\n" unless -f $rc_filename;
+    my @configs = map { YAML::LoadFile( $_ ) } 
+                  grep { -f $_ } 
+                  map { "$_/$rc_filename" } $ENV{HOME}, '.'
+        or die "no file '$rc_filename' found\n";
 
-    my $config = YAML::LoadFile( $rc_filename );
+    my $config = @configs == 1 ? $configs[0] : merge( @configs );
 
     if ( $config->{actions} ) {
         $self->add_actions( @{$config->{actions} } );    
