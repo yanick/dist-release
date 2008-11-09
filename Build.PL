@@ -12,6 +12,7 @@ my $builder = Module::Build->new(
         'version'    => 0,
     },
     add_to_cleanup      => [ 'Dist-Release-*' ],
+    script_files => [ qw#  script/distrelease # ],
 );
 
 $builder->create_build_script();
