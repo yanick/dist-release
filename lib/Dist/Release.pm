@@ -8,12 +8,12 @@ use warnings;
 use Moose::Policy 'MooseX::Policy::SemiAffordanceAccessor';
 use Moose;
 
-
 use YAML;
 use Term::ANSIColor;
 use Hash::Merge 'merge';
-
 use Readonly;
+
+our $VERSION = '0.0_1';
 
 Readonly my $rc_filename => 'distrelease.yml';
 
