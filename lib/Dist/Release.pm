@@ -35,11 +35,20 @@ has 'vcs',
   builder => 'detect_vcs',
   is      => 'rw';
 
+has builder => ( builder => 'detect_builder', is => 'ro' );
+
 has check_only => ( is => 'rw' );
 
 has pretend => ( is => 'ro', default => 1 );
 
 has stash => ( isa => 'HashRef', is => 'rw', default => sub { {} } );
+
+sub detect_builder {
+    return
+        -f 'Build.PL'    ? 'Build'
+      : -f 'Makefile.PL' ? 'MakeMaker'
+      :                    undef;
+}
 
 sub run {
     my $self = shift;

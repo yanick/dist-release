@@ -1,6 +1,6 @@
 checks:
     - VCS::WorkingDirClean
-    - Manifest::Build
+    - Manifest
 actions:
-    - GenerateDistribution::Build
+    - GenerateDistribution
     - CPANUpload
