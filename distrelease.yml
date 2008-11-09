@@ -1,4 +1,5 @@
 checks:
     - VCS::WorkingDirClean
+    - Manifest::Build
 actions:
     - CPANUpload

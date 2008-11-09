@@ -1,0 +1,11 @@
+.git
+_build
+tags
+project.vim
+MANIFEST.SKIP
+issues
+.*.swp
+Build
+blib
+distrelease.yml
+cil

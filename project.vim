@@ -16,4 +16,8 @@ Dist-Release=/home/yanick/work/perl-modules/Dist-Release CD=. {
  script=script {
   distrelease
  }
+ distribution=. {
+    MANIFEST
+    MANIFEST.SKIP
+ }
 }
