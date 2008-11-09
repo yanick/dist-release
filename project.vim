@@ -12,8 +12,11 @@ Dist-Release=/home/yanick/work/perl-modules/Dist-Release CD=. {
    Dist/Release/Action.pm
    Dist/Release/Step.pm
    Dist/Release/Check/VCS/WorkingDirClean.pm
-   Dist/Release/Action/CPANUpload.pm
-   Dist/Release/Action/GenerateDistribution/Build.pm
+ }
+ actions=lib/Dist/Release/Action {
+    Github.pm
+    GenerateDistribution/Build.pm
+    CPANUpload.pm
  }
  script=script {
   distrelease
