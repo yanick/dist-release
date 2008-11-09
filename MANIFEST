@@ -15,6 +15,9 @@ lib/Dist/Release/Check/VCS/WorkingDirClean.pm
 lib/Dist/Release/Check/VCS/WorkingDirClean/Git.pm
 lib/Dist/Release/Check/Manifest/Build.pm
 lib/Dist/Release/Step.pm
+lib/Dist/Release/Action/GenerateDistribution.pm
+lib/Dist/Release/Check/Manifest.pm
+lib/Dist/Release/Step/VCS.pm
 script/distrelease
 xt/perlcritic.t
 xt/pod-coverage.t
