@@ -218,15 +218,16 @@ sub release {
 
     my @actions = $self->actions;
     while ( my $a = shift @actions ) {
+        my $name = $a;
         printf "%-30s    ", $a;
         $a = "Dist::Release::Action::$a"->new( distrel => $self );
         $a->release;
 
         if ( $a->failed ) {
             print '[' . colored( 'failed', 'red' ) . "]\n";
-            print "release actions not run: ", join( ', ', @actions ), "\n"
-              if @actions;
             print $a->log;
+            print "release actions not run to completion: ",
+              join( ', ', $name, @actions ), "\n";
             exit;
         }
         else {
