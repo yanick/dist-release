@@ -1,5 +1,6 @@
 
 Dist-Release=/home/yanick/work/perl-modules/Dist-Release CD=. {
+ .gitignore
  distrelease.yml
  project.vim
  tags

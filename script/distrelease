@@ -12,6 +12,7 @@ GetOptions( \%options,
     'action=s@',
     'check=s@',
     'checks!',
+    'doit!',
 );
 
 my %args;
@@ -23,6 +24,7 @@ if ( $options{check} and @{$options{check}} ) {
 }
 
 $args{check_only}=1 if  $options{checks};
+$args{pretend}= !$options{doit};
 
 my $rel = Dist::Release->new( %args );
 

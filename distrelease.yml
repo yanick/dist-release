@@ -2,4 +2,5 @@ checks:
     - VCS::WorkingDirClean
     - Manifest::Build
 actions:
+    - GenerateDistribution::Build
     - CPANUpload

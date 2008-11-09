@@ -1,6 +1,6 @@
 package Dist::Release::Action::GenerateDistribution::Build;
 
-use '5.10.0';
+use 5.10.0;
 
 use Moose;
 
