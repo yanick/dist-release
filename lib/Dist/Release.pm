@@ -1,5 +1,7 @@
 package Dist::Release;
 
+use 5.10.0;
+
 use strict;
 use warnings;
 
@@ -20,15 +22,62 @@ has 'config',
     builder => 'load_config';
 
 has 'actions',
-    isa => 'ArrayRef[Str]'
+    isa => 'ArrayRef',
+    initializer => 'init_actions',
     ;
 
 has 'checks',
-    isa => 'ArrayRef[Str]';
+    isa => 'ArrayRef',
+    initializer => 'init_checks',
+    ;
 
 has 'vcs',
     builder => 'detect_vcs',
     is => 'rw';
+
+has check_only => ( is => 'rw' );
+
+has pretend => ( is => 'ro', default => 1 );
+
+has stash => ( isa => 'HashRef', is => 'rw', default => sub { {} } );
+
+sub run {
+    my $self = shift;
+
+    if ( $self->pretend ) {
+        say 'Dist::Release will only pretend to perform the actions ',
+            '(use --doit for the real deal)';
+    }
+
+    my $fails = $self->check;
+
+    exit if $self->check_only;
+
+    if ( $fails ) {
+        say 'some checks failed, aborting the release';
+        exit 1;
+    }
+
+    $self->release;
+}
+
+sub init_actions {
+    my ( $self, $value, $set  ) = @_;
+
+    if( 'ARRAY' eq ref $value ) {
+        $self->add_actions( @$value );
+    }
+
+}
+
+sub init_checks {
+    my ( $self, $value, $set  ) = @_;
+
+    if( 'ARRAY' eq ref $value ) {
+        $self->add_checks( @$value );
+    }
+}
+
 
 sub actions {
     return @{ $_[0]->{actions}||=[] };
@@ -37,16 +86,33 @@ sub actions {
 sub checks {
     return @{ $_[0]->{checks}||=[] };
 }
+
+
 sub add_actions {
     my( $self, @actions ) = @_;
 
+    for my $step ( @actions ) {
+        eval "require Dist::Release::Action::$step; 1;" 
+            or die "couldn't load release step '$step'\n$@";
+    }
+
     push @{$self->{actions}}, @actions;
+
+    return $self->{actions};
 }
 
 sub add_checks {
     my( $self, @checks ) = @_;
 
-    push @{$self->{checks}}, @checks;
+    $self->{checks}||=[];
+
+    for my $step ( @checks ) {
+        eval "require Dist::Release::Check::$step; 1;" 
+            or die "couldn't load check step '$step'\n$@";
+        push @{$self->{checks}}, $step;
+    }
+
+    return $self->{checks};
 }
 
 sub clear_actions {
@@ -55,6 +121,16 @@ sub clear_actions {
 
 sub clear_checks {
     $_[0]->{checks} = [];
+}
+
+sub BUILD {
+    my $self = shift;
+
+    unless ( $self->checks or $self->actions ) {
+        $self->add_checks( @{ $self->config->{checks} } );
+        $self->add_actions( @{ $self->config->{actions} } );
+    }
+
 }
 
 sub load_config {
@@ -66,24 +142,6 @@ sub load_config {
         or die "no file '$rc_filename' found\n";
 
     my $config = @configs == 1 ? $configs[0] : merge( @configs );
-
-    if ( $config->{actions} ) {
-        $self->add_actions( @{$config->{actions} } );    
-    }
-
-    if ( $config->{checks} ) {
-        $self->add_checks( @{$config->{checks} } );    
-    }
-
-    for my $step ( $self->checks ) {
-        eval "require Dist::Release::Check::$step; 1;" 
-            or die "couldn't load release step '$step'\n$@";
-    }
-
-    for my $step ( $self->actions ) {
-        eval "require Dist::Release::Action::$step; 1;" 
-            or die "couldn't load release step '$step'\n$@";
-    }
 
     return $config;
 }
@@ -126,8 +184,9 @@ sub check {
 
     if ( $failed_checks ) {
         print $failed_checks . ' checks failed'."\n";
-        # exit 1;
     }
+
+    return $failed_checks;
 }
 
 # return true on success, false on failure
@@ -150,6 +209,7 @@ sub check_single {
 
             }
 
+            no warnings qw/ uninitialized /;
             print $s->log;
 
             return $pass;
@@ -157,8 +217,6 @@ sub check_single {
 
 sub release {
     my $self = shift;
-
-    $self->check;
 
     print "running release cycle...\n";
 
@@ -182,6 +240,17 @@ sub release {
 
             print $a->log;
     }
+
+}
+
+sub print_steps {
+    my $self = shift;
+
+    say 'checks';
+    say "\t$_" for $self->checks;
+    say 'actions';
+    say"\t$_" for $self->actions;
+
 
 }
 

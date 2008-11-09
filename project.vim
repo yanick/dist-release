@@ -12,7 +12,6 @@ Dist-Release=/home/yanick/work/perl-modules/Dist-Release CD=. {
    Dist/Release/Step.pm
    Dist/Release/Check/VCS/WorkingDirClean.pm
    Dist/Release/Action/CPANUpload.pm
-   Dist/Release/Action/DoSomething.pm
  }
  script=script {
   distrelease

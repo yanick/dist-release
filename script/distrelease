@@ -4,7 +4,43 @@ use strict;
 use warnings;
 
 use Dist::Release;
+use Getopt::Long;
 
-my $rel = Dist::Release->new();
+my %options;
+GetOptions( \%options, 
+    'list!',
+    'action=s@',
+    'check=s@',
+    'checks!',
+);
 
-$rel->release;
+my %args;
+if ( $options{action} and @{$options{action}} ) {
+    $args{actions} = $options{action};
+}
+if ( $options{check} and @{$options{check}} ) {
+    $args{checks} = $options{check};
+}
+
+$args{check_only}=1 if  $options{checks};
+
+my $rel = Dist::Release->new( %args );
+
+if ( $options{list} ) {
+    $rel->print_steps;
+    exit;
+}
+
+
+$rel->run;
+
+__END__
+
+
+=over
+
+=item --list
+
+Prints out all the checks are actions that would be performed and exits.
+
+=back
