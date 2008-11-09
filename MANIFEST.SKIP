@@ -4,8 +4,10 @@ tags
 project.vim
 MANIFEST.SKIP
 issues
-.*.swp
+\.swp$
 Build
 blib
 distrelease.yml
 cil
+\.bak$
+
