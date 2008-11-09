@@ -13,7 +13,7 @@ extends 'Dist::Release::Action';
 sub release {
     my $self = shift;
 
-    say "running 'Build dist'";
+    $self->diag("running 'Build dist'");
 
     unless ( $self->distrel->pretend ) {
         unless ( scalar run( command => [qw# ./Build dist #] ) ) {
