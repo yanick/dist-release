@@ -23,3 +23,5 @@ xt/pod-coverage.t
 xt/pod.t
 
 META.yml
+lib/Dist/Release/Action/Github.pm
+xt/dependencies.t
