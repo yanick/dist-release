@@ -1,10 +1,18 @@
 #!/usr/bin/perl 
 
+use 5.10.0;
+
 use strict;
 use warnings;
 
 use Dist::Release;
 use Getopt::Long;
+use Module::Locate 'locate';
+use Pod::Usage;
+
+use Module::Pluggable search_path => 'Dist::Release::Action', sub_name => 'actions';
+use Module::Pluggable search_path => 'Dist::Release::Check',  sub_name => 'checks';
+
 
 my %options;
 GetOptions( \%options, 
@@ -13,7 +21,41 @@ GetOptions( \%options,
     'check=s@',
     'checks!',
     'doit!',
+    'available!',
 );
+
+if ( $options{available} ) {
+    say '--- checks';
+    for( sort { $a cmp $b } checks() ) {
+        say step_oneliner( $_ );
+    }
+    say '--- actions';
+    say for sort { $a cmp $b } actions();
+    exit;
+}
+
+sub step_oneliner {
+
+    no warnings qw/ uninitialized /;
+    my $pod_output;
+    local *STDOUT;
+    open my $fh, '>', \$pod_output; 
+
+    pod2usage(  
+        -input => locate($_[0]), 
+        -output => $fh , 
+        -exitval => 'NOEXIT',
+        -verbose => 99,
+        -sections => 'NAME' );
+
+    $pod_output =~ s/^(Name:)?\s*//mg;
+    $pod_output ||= $_[0];
+    $pod_output =~ s/\n/ /g;
+
+    $pod_output =~ s/Dist::Release::(Action|Check):://;
+
+    return $pod_output;
+}
 
 my %args;
 if ( $options{action} and @{$options{action}} ) {
@@ -40,6 +82,10 @@ __END__
 
 
 =over
+
+=item --available
+
+Prints out all the available checks and actions.
 
 =item --list
 

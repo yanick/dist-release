@@ -4,3 +4,4 @@ checks:
 actions:
     - GenerateDistribution
     - CPANUpload
+    - Github
