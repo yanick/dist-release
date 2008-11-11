@@ -1,5 +1,9 @@
 Revision history for Dist-Release
 
+wip
+        - Added a Github action.
+        - Beefed up the dependencies in Build.PL
+
 0.0_1  Sat Nov  8 20:44:38 2008
        Initial release.
 
