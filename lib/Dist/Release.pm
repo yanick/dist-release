@@ -13,7 +13,7 @@ use Term::ANSIColor;
 use Hash::Merge 'merge';
 use Readonly;
 
-our $VERSION = '0.0_1';
+our $VERSION = '0.0_2';
 
 Readonly my $rc_filename => 'distrelease.yml';
 
