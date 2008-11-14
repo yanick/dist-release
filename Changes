@@ -1,6 +1,9 @@
 Revision history for Dist-Release
 
-0.0_2
+0.0_3  Fri Nov 14 2008
+        - Added the Build* modules to the MANIFEST (and the distro)
+
+0.0_2  Thu Nov 13 2008
         - Added a Github action
         - Beefed up the dependencies in Build.PL
         - Added a Builder step (parent class for Build-specific steps)

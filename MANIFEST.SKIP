@@ -5,10 +5,9 @@ project.vim
 MANIFEST.SKIP
 issues
 \.swp$
-Build
+^Build$
 blib
 distrelease.yml
 cil
 \.bak$
-
 perversionrc
