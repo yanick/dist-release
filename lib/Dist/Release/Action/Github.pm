@@ -28,7 +28,9 @@ sub check {
 sub release {
     my $self = shift;
 
-    $self->distrel->vcs->command( push => '--tags', 'github', 'master' );
+    unless ( $self->distrel->pretend ) {
+        $self->distrel->vcs->command( push => '--tags', 'github', 'master' );
+    }
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
