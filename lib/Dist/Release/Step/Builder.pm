@@ -4,6 +4,8 @@ use Moose;
 
 extends 'Dist::Release::Step';
 
+our $VERSION = '0.0_1';
+
 sub check {
     my $self = shift;
 
@@ -70,6 +72,22 @@ More clearly, assuming the generic step is called I<DoStuff>, if
 going to be used.  If it's 'MakeMaker', then it's going to be
 the module I<DoStuff::MakeMaker>.
 
+=head1 SUPPORTED BUILDERS
 
+See the builders recognized by L<Dist::Release/builder>. 
 
+=head1 version
+
+This documentation refers to Dist::Release version 0.0_1.
+
+=head1 AUTHOR 
+
+Yanick Champoux, <yanick@cpan.org>.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (c) 2008 Yanick Champoux (<yanick@cpan.org>). All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
 

@@ -47,6 +47,7 @@ sub detect_builder {
     return
         -f 'Build.PL'    ? 'Build'
       : -f 'Makefile.PL' ? 'MakeMaker'
+      : -f 'inc'         ? 'ModuleInstall'
       :                    undef;
 }
 
@@ -133,11 +134,8 @@ sub clear_checks {
 sub BUILD {
     my $self = shift;
 
-    unless ( $self->checks or $self->actions ) {
-        $self->add_checks( @{ $self->config->{checks} } );
-        $self->add_actions( @{ $self->config->{actions} } );
-    }
-
+    $self->add_checks( @{ $self->config->{checks} } )   unless $self->checks;
+    $self->add_actions( @{ $self->config->{actions} } ) unless $self->actions;
 }
 
 sub load_config {
@@ -265,4 +263,51 @@ __END__
 
 =head1 NAME
 
-Dist::Release - manage the process of releasing a module 
+Dist::Release - manages the process of releasing a module 
+
+=head1 DESCRIPTION
+
+Dist::Release is meant to help CPAN authors automate the 
+release process of their modules. In Dist::Release, the 
+release process is seen as a sequence of steps. There are two 
+different kind of steps: checks and actions. Checks are non-intrusive 
+verifications (i.e., they're not supposed to touch anything), 
+and actions are the steps that do the active part of the release. 
+When one launches a release, checks are done first. If some fail, 
+we abort the process. If they all pass, then we are good to go and the actions are done as well. 
+
+
+The rest of this documentation deals with the guts of Dist::Release and
+how to write new steps.  If you are rather interested in using Dist::Release,
+look at the documentation of L<distrelease>.
+
+=head1 METHODS
+
+=head2 builder
+
+Guesses the name of the build module used by the distribution.
+Returns 'Build' for 'Module::Build',
+'MakeMaker' for 'ExtUtils::MakeMaker',
+'ModuleInstall' for 'Module::Install' and
+I<undef> if it couldn't find anything.
+
+=head1 SEE ALSO
+
+L<Module::Release> - another module tackling the same task.
+
+
+=head1 version
+
+This documentation refers to Dist::Release version 0.0_1.
+
+=head1 AUTHOR 
+
+Yanick Champoux, <yanick@cpan.org>.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (c) 2008 Yanick Champoux (<yanick@cpan.org>). All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+

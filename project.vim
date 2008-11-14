@@ -11,6 +11,7 @@ Dist-Release=/home/yanick/work/perl-modules/Dist-Release CD=. {
    Dist/Release.pm
    Dist/Release/Action.pm
    Dist/Release/Step.pm
+   Dist/Release/Step/Builder.pm
    Dist/Release/Check/VCS/WorkingDirClean.pm
  }
  actions=lib/Dist/Release/Action {

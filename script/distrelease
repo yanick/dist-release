@@ -80,6 +80,20 @@ $rel->run;
 
 __END__
 
+=head1 NAME
+
+distrelease - releases a distribution to CPAN
+
+=head1 SYNOPSIS
+
+B<distrelease>  [ -doit ]
+
+=head1 DESCRIPTION
+
+This is the command-line interface to the Dist::Release
+process.
+
+=head1 OPTIONS
 
 =over
 
@@ -91,4 +105,39 @@ Prints out all the available checks and actions.
 
 Prints out all the checks are actions that would be performed and exits.
 
+=item --check I<checks>
+
+If B<--check> is provided, the given checks will be used 
+instead of the ones provided in the configuration file.
+
+Example:
+
+    distrelease --check Manifest UpdatedVersion
+
+=item --action I<actions> 
+
+If B<--action> is provided, the given actions will be used
+instead of the ones provided in the configuration file.
+
+Example:
+
+    distrelease --action Github CPANUpload
+
+
 =back
+
+=head1 version
+
+This documentation refers to Dist::Release version 0.0_1.
+
+=head1 AUTHOR 
+
+Yanick Champoux, <yanick@cpan.org>.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (c) 2008 Yanick Champoux (<yanick@cpan.org>). All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
