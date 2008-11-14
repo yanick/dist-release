@@ -4,7 +4,7 @@ use Moose;
 
 extends 'Dist::Release::Step';
 
-our $VERSION = '0.0_2';
+our $VERSION = '0.0_3';
 
 sub check {
     my $self = shift;
