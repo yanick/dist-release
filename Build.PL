@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
         'version'         => 0,
         'Moose'           => 0,
         'Moose::Policy'   => 0,
+        'MooseX::Policy::SemiAffordanceAccessor' => 0,
         'CPAN::Uploader'  => 0,
         'YAML'            => 0,
         'Readonly'        => 0,
