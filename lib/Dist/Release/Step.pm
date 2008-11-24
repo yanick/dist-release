@@ -2,6 +2,7 @@ package Dist::Release::Step;
 
 use Moose::Policy 'MooseX::Policy::SemiAffordanceAccessor';
 use Moose;
+our $VERSION = '0.0_3';
 
 has 'failed' => ( default => 0, is => 'rw' );
 has 'log' => ( is => 'rw' );

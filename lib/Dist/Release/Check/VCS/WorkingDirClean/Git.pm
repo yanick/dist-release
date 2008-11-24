@@ -4,17 +4,18 @@ use Moose;
 
 extends 'Dist::Release::Step';
 
+our $VERSION = '0.0_3';
+
 sub check {
     my $self = shift;
 
-    return $self->error( 'no Git repository detected' ) 
-        unless 'Git' eq ref $self->distrel->vcs; 
+    return $self->error('no Git repository detected')
+      unless 'Git' eq ref $self->distrel->vcs;
 
     my $result = `git status`;
 
-    $self->error( 'working directory is not clean' . "\n" . $result ) 
-        unless $result =~ /working directory clean/;
+    $self->error( 'working directory is not clean' . "\n" . $result )
+      unless $result =~ /working directory clean/;
 }
-
 
 1;

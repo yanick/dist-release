@@ -3,10 +3,12 @@ package Dist::Release::Action;
 use Moose;
 
 extends 'Dist::Release::Step';
+our $VERSION = '0.0_3';
 
 sub check {
+
     # its okay for an action not to have a check phase
-    $_[0]->diag( 'no check implemented' );
+    $_[0]->diag('no check implemented');
 }
 
 sub release {
