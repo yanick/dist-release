@@ -10,20 +10,32 @@ use Perl6::Slurp;
 use List::Util qw/ reduce /;
 our $VERSION = '0.0_3';
 
-has config => (
+use overload '""' => sub { $_[0]->version };
+
+has file => (
     default => 'distversionrc',
     is      => 'ro',
 );
+
+has code => ( is => 'ro', );
 
 has files => ( is => 'rw', );
 
 sub BUILD {
     my $self = shift;
 
-    my $c = $self->config;
-    die "config file $c not found\n" unless -f $c;
+    my %files;
 
-    my %files = do $c;
+    if ( my $code = $self->code ) {
+        %files = eval $code;
+        die $@ if $@;
+    }
+    else {
+        my $c = $self->file;
+        die "config file $c not found\n" unless -f $c;
+
+        %files = do $c;
+    }
 
     $self->set_files( \%files );
 }

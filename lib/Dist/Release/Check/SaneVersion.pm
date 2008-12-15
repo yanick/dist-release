@@ -11,15 +11,9 @@ our $VERSION = '0.0_3';
 sub check {
     my $self = shift;
 
-    my $v = Dist::Release::Version->new;
+    my $v = $self->distrel->version;
 
-    my $version = eval { $v->version; };
-
-    if ($@) {
-        return $self->error($@);
-    }
-
-    $self->diag("distribution version is '$version'");
+    $self->diag("distribution version is '$v'");
 
 }
 

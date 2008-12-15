@@ -7,6 +7,7 @@ use warnings;
 
 use Moose::Policy 'MooseX::Policy::SemiAffordanceAccessor';
 use Moose;
+use MooseX::Method::Signatures;
 
 use YAML;
 use Term::ANSIColor;
@@ -43,6 +44,27 @@ has pretend => ( is => 'ro', default => 1 );
 
 has stash => ( isa => 'HashRef', is => 'rw', default => sub { {} } );
 
+has version => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        require Dist::Release::Version;
+        my $v;
+        if ( my $f = $self->config->{distversion}{file} ) {
+            $v = Dist::Release::Version->new( config => $f );
+        }
+        else {
+            die "no distversion info found in config file\n"
+              unless $self->config->{distversion}{code};
+            $v =
+              Dist::Release::Version->new(
+                code => $self->config->{distversion}{code} );
+        }
+        return $v;
+    },
+);
+
 sub detect_builder {
     return
         -f 'Build.PL'    ? 'Build'
@@ -51,8 +73,7 @@ sub detect_builder {
       :                    undef;
 }
 
-sub run {
-    my $self = shift;
+method run {
 
     if ( $self->pretend ) {
         say 'Dist::Release will only pretend to perform the actions ',
