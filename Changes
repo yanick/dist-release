@@ -1,5 +1,8 @@
 Revision history for Dist-Release
 
+wip
+    * Always build before checking and releasing
+
 0.0_3  Fri Nov 14 2008
         - Added the Build* modules to the MANIFEST (and the distro)
 

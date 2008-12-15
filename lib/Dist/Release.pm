@@ -59,6 +59,9 @@ sub run {
           '(use --doit for the real deal)';
     }
 
+    # build anew
+    $self->build;
+
     my $fails = $self->check;
 
     exit if $self->check_only;
@@ -69,6 +72,31 @@ sub run {
     }
 
     $self->release;
+}
+
+sub build {
+    my $self = shift;
+
+    my $builder = $self->builder
+      or return say "no builder found...";
+
+    $self->print_section("Building anew with $builder");
+
+    if ( $builder eq 'Build' ) {
+        do 'Build.PL';
+    }
+    elsif ( $builder eq 'MakeMaker' ) {
+        do 'Makefile.PL';
+    }
+    else {
+        die "not implemented yet\n";
+    }
+
+}
+
+sub print_section {
+    shift;
+    say '-' x 30, ' ', @_;
 }
 
 sub init_actions {
@@ -175,7 +203,7 @@ sub check {
 
     my $failed_checks;
 
-    print "running check cycle...\n";
+    $self->print_section('running check cycle');
 
     print "regular checks\n";
 
@@ -221,7 +249,7 @@ sub check_single {
 sub release {
     my $self = shift;
 
-    print "running release cycle...\n";
+    $self->print_section('running release cycle');
 
     my @actions = $self->actions;
     while ( my $a = shift @actions ) {
