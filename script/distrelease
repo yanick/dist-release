@@ -60,9 +60,11 @@ sub step_oneliner {
 my %args;
 if ( $options{action} and @{$options{action}} ) {
     $args{actions} = $options{action};
+    $args{checks} ||= [];
 }
 if ( $options{check} and @{$options{check}} ) {
     $args{checks} = $options{check};
+    $args{actions} ||= [];
 }
 
 $args{check_only}=1 if  $options{checks};

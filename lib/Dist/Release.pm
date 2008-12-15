@@ -126,7 +126,6 @@ sub init_actions {
     if ( 'ARRAY' eq ref $value ) {
         $self->add_actions(@$value);
     }
-
 }
 
 sub init_checks {
