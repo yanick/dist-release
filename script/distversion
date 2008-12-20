@@ -1,0 +1,357 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+no warnings qw/ uninitialized /;
+
+use 5.010;
+
+use Getopt::Long;
+use Perl6::Slurp;
+use version;
+
+our $VERSION = "0.2.0";
+
+my $change;
+my $configfile;
+my $listfiles;
+my $verbose;
+
+my $dist_version;
+my $inc_version;
+my $modify;
+my $increment;
+my $short;
+
+my $result = GetOptions(
+    'set=s'       => \$change,
+    'config=s'    => \$configfile,
+    'listfiles!'  => \$listfiles,
+    'verbose!'    => \$verbose,
+    'version=s'   => \$dist_version,
+    'modify!'     => \$modify,
+    'increment:s' => \$increment,
+    'short!'      => \$short,
+);
+
+# create Version object
+
+use Dist::Release::Version;
+
+unless ( $configfile ) {
+    if ( -e 'distrelease.yml' ) {
+        $configfile = 'distrelease.yml';
+    }
+    elsif ( -e 'distversionrc' ) {
+        $configfile = 'distversionrc';
+    }
+}
+
+my $code;
+if ( $configfile eq 'distrelease.yml' ) {
+    use YAML;
+    $code = YAML::LoadFile( $configfile )->{distversion}{code};
+}
+
+my $version = $configfile eq 'distrelease.yml' 
+    ?  Dist::Release::Version->new( code => $code )
+    :  Dist::Release::Version->new( file => $configfile )
+    ;
+
+my @increments = qw/ major minor revision alpha /;
+
+die "config file $configfile doesn't exist" unless -f $configfile;
+
+my %tocheck = %{ $version->files };
+
+if ($listfiles) {
+    print "files scanned by perversion:\n";
+    print "\t", $_, "\n" for sort keys %tocheck;
+    exit;
+}
+
+if ( defined $increment ) {
+    $increment ||= 'minor';
+
+    warn $increment;
+
+    die "-increment must be one of the following: ", join ' ', @increments
+      unless $increment ~~ @increments;
+
+    $modify = 1;
+
+    die "can't use -increment and -version simultaneously\n" if $dist_version;
+
+    check_all_files() or die "versions in files don't match, aborting\n";
+
+    die "no version found in any file\n" unless $dist_version;
+
+    print "old version is $dist_version" if $verbose;
+
+    $dist_version = inc_version( $dist_version, $increment );
+
+    print "new distribution version is $dist_version\n";
+
+    $change = $dist_version;
+}
+
+change_all_versions($change) if $change;
+
+if ($dist_version) {
+    print $short ? $dist_version : "distribution version is $dist_version\n";
+}
+
+die "inconsistent versions detected\n" 
+    unless check_all_files();
+
+exit;
+
+### utility functions ######################################
+
+sub change_all_versions {
+    my $new_version = shift;
+
+    print "changing all versions to $change..\n";
+
+    while ( my ( $file, $regexp ) = each %tocheck ) {
+        change_version( $file, $regexp, $new_version );
+    }
+
+    print "done\n";
+
+    exit;
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+sub check_all_files {
+    my $success = 1;
+
+    while ( my ( $file, $regexp ) = each %tocheck ) {
+        $success *= check_version( $file, $regexp );
+    }
+
+    return $success;
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+sub change_version {
+    my ( $file, $action, $version ) = @_;
+
+    print "\tupdating $file..\n";
+
+    my $code = slurp $file or die "can't open file $file: $!";
+    my $original = $code;
+
+    for my $act ( ref $action eq 'ARRAY' ? @$action : $action ) {
+        if ( ref $act eq 'CODE' ) {
+            ($code) = $act->( $code, $version );
+        }
+        else {
+            $code =~ s/$act/
+                            my $x = $&; 
+                            substr $x, index($x,$1), length($1), $version; 
+                            my $t = $`;
+                            my $line_nbr = 1 + $t =~ y#\n##;
+                            print "changed at $file:$line_nbr\n" if $verbose;
+                            $x /eg;
+        }
+    }
+
+    if ( $code ne $original ) {
+        open my $fh, '>', $file
+          or die "can't open file $file for writing: $!";
+        print {$fh} $code;
+        close $fh;
+    }
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+sub check_version {
+    my ( $file, $action ) = @_;
+
+    my $code = slurp $file or die "can't open file $file: $!";
+
+    my $found_version;
+    my $doc;
+
+    my $success = 1;
+
+    for my $act ( ref $action eq 'ARRAY' ? @$action : $action ) {
+        if ( ref $act eq 'CODE' ) {
+            my ( $code, @v ) = $act->($code);
+
+            for my $version (@v) {
+                unless ($dist_version) {
+                    $dist_version = $version;
+                    my $details = "(extracted from $file)" x $verbose;
+                    print
+                      "distribution version is set to $version $details\n";
+                }
+
+                my $bad_version = $version ne $dist_version;
+
+                $success = 0 if $bad_version;
+
+                if ( $verbose or $bad_version ) {
+                    print "$file: $version\n";
+                    print
+                      "!!! does not match distribution version ($dist_version) !!!\n"
+                      if $bad_version;
+                }
+
+            }
+
+        }
+        else {
+            while ( $code =~ /$act/g ) {
+                my $version  = $1;
+                my $t        = $`;
+                my $line_nbr = 1 + $t =~ y/\n//;
+                unless ($dist_version) {
+                    $dist_version = $version;
+                    my $details = "(extracted from $file)" x $verbose;
+                    print
+                      "distribution version is set to $version $details\n";
+                }
+
+                my $bad_version = $version ne $dist_version;
+
+                $success = 0 if $bad_version;
+
+                if ( $verbose or $bad_version ) {
+                    print "$file:$line_nbr: $version\n";
+                    print
+                      "!!! does not match distribution version ($dist_version) !!!\n"
+                      if $bad_version;
+                }
+
+            }
+        }
+    }
+
+    return $success;
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+sub inc_version {
+    my ( $version, $level ) = @_;
+
+    my %inc_unit = (
+        major    => 1,
+        minor    => 0.001,
+        revision => 0.000_001,
+        alpha    => 0.000_001,
+    );
+
+    $version = version->new($version)->numify;
+
+    $version += $inc_unit{$level}
+      || die "$level is not a valid increment type\n";
+
+    $version = $inc_unit{$level} * int 0.5 + $version / $inc_unit{$level};
+
+    $version =~ s/\d{3}(?=\d)/$&./g;
+    ( $version = version->new($version)->normal ) =~ s/^v//;
+    $version =~ s/\.(\d*)$/_$1/ if $level eq 'alpha';
+
+    return $version;
+}
+
+__END__
+
+=head1 NAME
+
+distversion - Query and modify Perl modules versions
+
+=head1 SYNOPSIS
+
+    perversion [ -config <file> ]  [ -listfiles ] [ -version <X.Y.Z> ] 
+               [ -set <X.Y.Z> ] [ -increment <type> ]
+               [ -verbose ]
+
+=head1 DESCRIPTION
+
+B<perversion> is a tool to query and modify the version
+strings in files of a Perl module distribution. If you
+are not a module author, this is probably of no great use
+for you.  If you are a module author, rejoice, your days of 
+manual version updates are over!
+
+Without options, B<perversion> checks that all files
+given in the configuration files have the same version
+number.
+
+=head1 OPTIONS
+
+=head2 -short 
+
+If given, only output the found revision number without
+any frill. Useful for, e.g., when called from another script/program.
+
+=head2 -config I<file>
+
+Use configuration file I<file>.  If not given, look for the file
+I<perversionrc> in the current directory.  For the format
+of the configuration file, see the section CONFIGURATION FILE
+below.
+
+=head2 -version I<version>
+
+Check that all files are set to I<version>.
+
+=head2 -set I<version>
+
+Set all files to have the given I<version>.
+
+=head2 -increment [ major | minor | revision | alpha ]
+
+Increment the version in all files by the given increment.
+
+For example, if the current version is "1.2.3"
+
+    -increment major    yields "2.0.0"
+    -increment minor    yields "1.3.0"
+    -increment revision yields "1.2.4"
+    -increment alpha    yields "1.2_4"
+
+
+=head1 CONFIGURATION FILE
+
+B<perversion>'s configuration file is free-form Perl code, which
+last statement must be a
+hash.  Its keys are the files containing the version strings, and
+the values are the regular expressions that catch them.
+
+The regular expressions must capture the version string in $1.
+
+More than one regular expression can be assigned to a file by
+using an array reference as the hash value. E.g.:
+
+    $file{Foo.pm} = [ 
+        qr/VERSION: (.*?)/, 
+        qr/This is v(\S+)/, 
+    ];
+
+
+For example:
+
+    use File::Find::Rule;
+
+    my %file;
+
+    $file{README} = qr/WWW-Ohloh-API version (\S+)/;
+
+    for my $m ( File::Find::Rule->file->name( '*.pm' )->in( 'lib' ) ) {
+        $file{$m} = [ 
+            qr/\$VERSION\s*=\s*'(.*?)';/, 
+            qr/This document describes \S+ version (\S*)/ 
+        ];
+    }
+
+    %file;
+
+
