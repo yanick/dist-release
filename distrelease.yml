@@ -5,6 +5,7 @@ checks:
 actions:
     - GenerateDistribution
     - CPANUpload
+    - VCS::Tag
     - Github
 distversion:
     code: |
