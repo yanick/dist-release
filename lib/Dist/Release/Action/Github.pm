@@ -6,7 +6,7 @@ use CPAN::Uploader;
 
 extends 'Dist::Release::Action';
 
-our $VERSION = '0.0_3';
+our $VERSION = '0.0_4';
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

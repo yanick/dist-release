@@ -3,7 +3,7 @@ package Dist::Release::Action;
 use Moose;
 
 extends 'Dist::Release::Step';
-our $VERSION = '0.0_3';
+our $VERSION = '0.0_4';
 
 sub check {
 

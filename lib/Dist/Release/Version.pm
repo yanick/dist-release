@@ -8,7 +8,7 @@ use Moose;
 
 use Perl6::Slurp;
 use List::Util qw/ reduce /;
-our $VERSION = '0.0_3';
+our $VERSION = '0.0_4';
 
 use overload '""' => sub { $_[0]->version };
 

@@ -14,7 +14,7 @@ use Term::ANSIColor;
 use Hash::Merge 'merge';
 use Readonly;
 
-our $VERSION = '0.0_3';
+our $VERSION = '0.0_4';
 
 Readonly my $rc_filename => 'distrelease.yml';
 
@@ -311,9 +311,20 @@ __END__
 
 =head1 NAME
 
-Dist::Release - manages the process of releasing a module 
+Dist::Release - manages the process of releasing a module (DEPRECATED)
 
 =head1 DESCRIPTION
+
+B<THIS MODULE IS DEPRECATED>
+
+Back in its early days, L<Dist::Zilla> wasn't quite scratching the release itch
+to my satisfaction, so I had to have a go at it with I<Dist::Release>. But
+now that I<Dist::Zilla> has blossomed to full-fledged awesomeness, it makes
+much more sense to join the party than to continue on a parallel effort. Hence
+de deprecation. I'll
+keep this module around a little while still, but I strongly recommend to use 
+I<Dist::Zilla> instead. You'll like it better, trust me.
+
 
 Dist::Release is meant to help CPAN authors automate the 
 release process of their modules. In Dist::Release, the 
@@ -341,7 +352,10 @@ I<undef> if it couldn't find anything.
 
 =head1 SEE ALSO
 
+L<Dist::Zilla> - rjbs' awesome distribution builder
+
 L<Module::Release> - another module tackling the same task.
+
 
 
 =head1 version
