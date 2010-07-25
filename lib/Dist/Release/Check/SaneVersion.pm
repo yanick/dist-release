@@ -6,7 +6,7 @@ extends 'Dist::Release::Step';
 
 use Dist::Release::Version;
 
-our $VERSION = '0.0_4';
+our $VERSION = '0.0_5';
 
 sub check {
     my $self = shift;

@@ -1,3 +1,4 @@
+^Dist-Release.*
 .git
 _build
 tags
@@ -11,3 +12,4 @@ distrelease.yml
 cil
 \.bak$
 perversionrc
+^MYMETA.yml$

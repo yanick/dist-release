@@ -1,5 +1,8 @@
 Revision history for Dist-Release
 
+0.0_5 July 25th, 2010
+        - adding distversion and a few leftover modules
+
 0.0_4  
         - Deprecation notice in favor of Dist::Zilla
 

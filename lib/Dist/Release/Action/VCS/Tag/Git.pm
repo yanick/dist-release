@@ -6,7 +6,7 @@ extends 'Dist::Release::Step';
 
 use version 'qv';
 
-our $VERSION = '0.0_4';
+our $VERSION = '0.0_5';
 
 has '+distrel' => ( handles => [qw/ vcs version /], );
 

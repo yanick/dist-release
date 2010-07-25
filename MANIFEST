@@ -1,3 +1,10 @@
+lib/Dist/Release/Action/VCS/Tag.pm
+lib/Dist/Release/Action/VCS/Tag/Git.pm
+lib/Dist/Release/Check/SaneVersion.pm
+lib/Dist/Release/Check/VCS/BumpedVersion.pm
+lib/Dist/Release/Check/VCS/BumpedVersion/Git.pm
+lib/Dist/Release/Version.pm
+script/distversion
 Build.PL
 Changes
 MANIFEST

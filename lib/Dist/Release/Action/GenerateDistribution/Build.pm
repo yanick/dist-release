@@ -3,7 +3,7 @@ package Dist::Release::Action::GenerateDistribution::Build;
 use 5.10.0;
 
 use Moose;
-our $VERSION = '0.0_4';
+our $VERSION = '0.0_5';
 
 use IPC::Cmd 'run';
 
